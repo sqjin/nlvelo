@@ -25,8 +25,8 @@ devtools::install_github("sqjin/nlvelo")
 You need to have boost (e.g. `sudo apt-get install libboost-dev`) and openmp libraries installed. Please see detailed installation commands [here](https://github.com/velocyto-team/velocyto.R/blob/master/dockers/debian9/Dockerfile). 
 
 ## Tutorials
-- [nlvelo demo](https://htmlpreview.github.io/?https://github.com/sqjin/nlvelo/tutorial/nlvelo-demo.html)
-- [Interface with other single-cell analysis toolkits (e.g., Seurat)](https://htmlpreview.github.io/?https://github.com/sqjin/nlvelo/tutorial/Interface_with_other_single-cell_analysis_toolkits.html)
+- [nlvelo demo](https://htmlpreview.github.io/?https://github.com/sqjin/nlvelo/blob/master/tutorial/nlvelo-demo.html)
+- [Interface with other single-cell analysis toolkits (e.g., Seurat)](https://htmlpreview.github.io/?https://github.com/sqjin/nlvelo/blob/master/tutorial/Interface_with_other_single-cell_analysis_toolkits.html)
 
 ## Help
 If you have any problems, comments or suggestions, please contact us at Suoqin Jin (suoqin.jin@uci.edu). 
