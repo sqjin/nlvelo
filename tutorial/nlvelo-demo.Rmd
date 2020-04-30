@@ -1,0 +1,115 @@
+
+---
+title: "RNA velocity analysis of cellular dynamics using nlvelo"
+author: "Suoqin Jin"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mainfont: Arial
+vignette: >
+  %\VignetteIndexEntry{RNA velocity analysis of cellular dynamics using nlvelo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  root.dir = './'
+)
+```
+
+
+This vignette outlines the steps of RNA velocity analysis of cellular dynamics using nlvelo by applying it to studying the interfollicular epidermal cell transition dynamics during skin homeostasis. 
+
+
+## Load the required libraries
+```{r message=FALSE,warning=FALSE}
+library(nlvelo)
+library(igraph)
+```
+
+## Load loom files
+```{r}
+# Here we load loom files of two replicates and then combined them together
+ldat1 <- read.loom.matrices("/Users/suoqinjin/Dropbox/example_nlvelo/ms_uw_1.loom")
+ldat2 <- read.loom.matrices("/Users/suoqinjin/Dropbox/example_nlvelo/ms_uw_2.loom")
+ldat <- ldat1
+emat1 <- ldat1$spliced;
+emat2 <- ldat2$spliced;
+emat <- cbind(emat1, emat2);
+nmat1 <- ldat1$unspliced;
+nmat2 <- ldat2$unspliced;
+nmat <- cbind(nmat1, nmat2);
+ldat$spliced <- emat; ldat$unspliced <- nmat;
+```
+
+## Take an existing embedding for visualization
+```{r}
+ydata <- read.delim("/Users/suoqinjin/Dropbox/example_nlvelo/projectedData_ump_UW_IFE.txt", row.names = 1, header = T)
+emb <- as.matrix(ydata)
+```
+
+## Subset the loom files for interested cells
+```{r}
+# processing cell barcodes is data-specific
+barcodes_loom <- colnames(ldat$spliced)
+barcodes_loom <- substr(barcodes_loom,15,35) # change it if necessary
+barcodes_loom <- gsub(":", "_", barcodes_loom) # change it if necessary
+barcodes <- row.names(ydata)
+barcodes <- substr(barcodes,1,21) # change it if necessary
+# subset the loom files by matching the cell barcodes with the loaded cell embedding
+idx = match(barcodes,barcodes_loom)
+ldat$spliced <- ldat$spliced[,idx]; ldat$unspliced <- ldat$unspliced[,idx];
+colnames(ldat$spliced) <- row.names(ydata);colnames(ldat$unspliced) <- row.names(ydata);
+emat <- ldat$spliced; nmat <- ldat$unspliced;
+```
+
+## Load cell labels and define cell colors
+```{r}
+# cell.label should be a named factor
+cell.label <- read.table("/Users/suoqinjin/Dropbox/example_nlvelo/clusters_UW_IFE.txt",sep = '\t',row.names=1,header=T)$cluster
+names(cell.label) <- rownames(ydata)
+# cell.colors should be also named
+color.use <- c('#FF1622','#00b938','#3657df','#603A91','#F29233','#D6B239')
+names(color.use) <- levels(cell.label)
+cell.colors <- color.use[cell.label]
+names(cell.colors) <- rownames(ydata)
+```
+
+## Compute the cell-cell distance
+```{r, fig.show = 'hide', results='hide', message=FALSE, warning=FALSE}
+# Pagoda2 is used to generate cell-cell distance matrix. You can alternatively generate those using other tools, such as Seurat
+library(pagoda2)
+row.names(emat) <- make.unique(row.names(emat),sep = '_')
+r <- Pagoda2$new(emat,modelType='plain',trim=10,log.scale=T)
+r$adjustVariance(plot=T,do.par=T,gam.k=10)
+r$calculatePcaReduction(nPcs=100,n.odgenes=3e3,maxit=300)
+# Calculate cell-cell distance matrix
+cell.dist <- as.dist(1-armaCor(t(r$reductions$PCA)))
+```
+
+## Filter genes based on the minimum average expresion count (in at least one of the clusters)
+```{r}
+emat <- filter.genes.by.cluster.expression(emat,cell.label,min.max.cluster.average = 0.1) # filtered emat matrix
+nmat <- filter.genes.by.cluster.expression(nmat,cell.label,min.max.cluster.average = 0.05)
+length(intersect(rownames(emat),rownames(nmat)))
+```
+
+## Estimate RNA velocity using nlvelo (nonlinear model)
+```{r}
+# using gene-relative model with k=30 cell kNN pooling and using top/bottom 2% quantiles for gamma fit:
+rvel <- gene.relative.velocity.estimates(emat,nmat,kCells=30,cell.dist=cell.dist,fit.quantile=0.02)
+```
+
+## Visualize velocity on an existing embedding
+```{r, fig.width=4,fig.height = 4,  fig.wide = TRUE, fig.align = "center"}
+show.velocity.on.embedding.cor(emb,rvel,n=500,scale='sqrt',cell.colors=ac(cell.colors,alpha=0.8),cex=0.8,arrow.scale=3,show.grid.flow=TRUE,min.grid.cell.mass=0.5,grid.n=40,arrow.lwd=0.5,do.par=T,cell.border.alpha = 0.001,
+                               xlab = "UMAP1", ylab = "UMAP2")
+```
+
+### Save the workspace
+```{r}
+save(emb, rvel, emat, nmat, cell.colors, cell.dist, file = "nlvelo_analysis_IFE.RData")
+```
+

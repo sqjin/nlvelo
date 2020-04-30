@@ -1,0 +1,49 @@
+
+---
+title: "Interface with other single-cell analysis toolkits"
+author: "Suoqin Jin"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mainfont: Arial
+vignette: >
+  %\VignetteIndexEntry{RNA velocity analysis of cellular dynamics using nlvelo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+
+This vignette shows how to extract the required data for nlvelo from other existing single-cell analysis toolkits, including [Seurat](https://satijalab.org/seurat/). 
+
+
+## Extract the following data information for velocity analysis
+- Cell embedding for visualization
+- Cell labels
+- Cell-cell distance matrix
+
+
+## Extract the required data from a Seurat V3 object
+The required data can be obtained from the Seurat object by
+```{r}
+# Cell embedding for visualization
+emb = Embeddings(seurat_object, "umap")
+# Cell labels
+labels <- Idents(seurat_object) # the cell labels
+# Cell-cell distance matrix
+cell.dist <- as.dist(1-armaCor(t(Embeddings(seurat_object, "pca"))))
+```
+
+## Extract the required data from a Seurat V2 object
+The required data can be obtained from the Seurat object by
+```{r}
+# Cell embedding for visualization
+emb <- seurat_object@dr$umap@cell.embeddings
+# Cell labels
+labels <- seurat_object@idents # the cell labels
+# Cell-cell distance matrix
+cell.dist <- as.dist(1-armaCor(t(seurat_object@dr$pca@cell.embeddings)))
+
+```
