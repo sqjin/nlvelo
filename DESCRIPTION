@@ -1,0 +1,18 @@
+Package: nlvelo
+Type: Package
+Title: RNA velocity estimation using nonlinear models
+Version: 1.0.0
+Author: Suoqin Jin, Yanwen Gong
+Maintainer: Suoqin Jin <suoqin.jin@uci.edu>
+Description: Provides basic routines for estimation of gene-specific transcriptional derivatives and visualization of the resulting velocity patterns.
+License: GPL-3
+Encoding: UTF-8
+Depends: Matrix,R (>= 3.5.0)
+Imports: Rcpp (>= 0.12.13), MASS, mgcv, parallel, pcaMethods, abind,
+        cluster, stats, grDevices, igraph, methods, hdf5r
+Suggests: roxygen2, Rtsne, BiocGenerics, Biostrings, GenomeInfoDb,
+        GenomicAlignments, GenomicRanges, IRanges, data.table,
+        Rsamtools, edgeR, h5, knitr
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 7.0.2
+NeedsCompilation: yes
