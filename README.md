@@ -27,6 +27,7 @@ You need to have boost (e.g. `sudo apt-get install libboost-dev`) and openmp lib
 ## Tutorials
 - [nlvelo demo](https://htmlpreview.github.io/?https://github.com/sqjin/nlvelo/blob/master/tutorial/nlvelo-demo.html)
 - [Interface with other single-cell analysis toolkits (e.g., Seurat)](https://htmlpreview.github.io/?https://github.com/sqjin/nlvelo/blob/master/tutorial/Interface_with_other_single-cell_analysis_toolkits.html)
+- [Generate a .loom file from .bam/.sam files](http://velocyto.org/velocyto.py/tutorial/cli.html)
 
 ## Help
 If you have any problems, comments or suggestions, please contact us at Suoqin Jin (suoqin.jin@uci.edu). 
